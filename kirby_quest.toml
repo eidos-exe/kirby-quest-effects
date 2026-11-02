@@ -1,0 +1,15 @@
+slow_startup_frames = 25.0
+slow_recovery_frames = 30.0
+assets_ready = true
+height = 16.0
+scale = 1.0
+voice_spacing_frames = 96
+voice_volume = 2.0
+quest_sound_volume = 1.5
+damage_height = 9.0
+damage_scale = 1.0
+dedede_height = 26.0
+metaknight_height = 18.0
+dodge_near_distance = 20.0
+pancake_horizontal_margin = 5.0
+pancake_run_stop_margin = 7.0
