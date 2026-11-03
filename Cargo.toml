@@ -1,6 +1,6 @@
 [package]
 name = "kirby_quest_effects"
-version = "0.5.2"
+version = "0.5.3"
 authors = ["eidos.exe", "Mickemoose (original Joker Damage VFX)", "LilyLambda (original combo system)"]
 edition = "2018"
 

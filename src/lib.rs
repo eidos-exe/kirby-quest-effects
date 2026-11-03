@@ -20,6 +20,7 @@ fn trace(message: &str) {
     }
 }
 mod rules;
+mod hit_owner;
 mod voice_feedback;
 mod profiles;
 mod special_profiles;
@@ -101,13 +102,16 @@ unsafe fn source_fighter(id: u32) -> Option<*mut BattleObjectModuleAccessor> {
             if entry(fighter).is_some() && utility::get_kind(&mut *fighter)==*FIGHTER_KIND_DEDEDE {return Some(fighter);}
         }
     }
-    let boma=sv_battle_object::module_accessor(id);
-    if entry(boma).is_some() { return Some(boma); }
-    if boma.is_null() || utility::get_category(&mut *boma) != *BATTLE_OBJECT_CATEGORY_WEAPON { return None; }
-    let owner=WorkModule::get_int(boma,*WEAPON_INSTANCE_WORK_ID_INT_LINK_OWNER) as u32;
-    if owner == id || owner == u32::MAX || !sv_battle_object::is_active(owner) { return None; }
-    let owner=sv_battle_object::module_accessor(owner);
-    entry(owner).map(|_|owner)
+    let fighter_id=hit_owner::fighter_owner(id,|current| {
+        if current==u32::MAX || current==*BATTLE_OBJECT_ID_INVALID as u32 || !sv_battle_object::is_active(current) {return None;}
+        let boma=sv_battle_object::module_accessor(current);if boma.is_null() {return None;}
+        let category=utility::get_category(&mut *boma);
+        if category==*BATTLE_OBJECT_CATEGORY_FIGHTER {Some(hit_owner::Source::Fighter)}
+        else if category==*BATTLE_OBJECT_CATEGORY_WEAPON {Some(hit_owner::Source::OwnedBy(WorkModule::get_int(boma,*WEAPON_INSTANCE_WORK_ID_INT_LINK_OWNER) as u32))}
+        else if category==*BATTLE_OBJECT_CATEGORY_ITEM {let owner=if LinkModule::is_link(boma,*ITEM_LINK_NO_HAVE) {LinkModule::get_parent_id(boma,*ITEM_LINK_NO_HAVE,true)} else {TeamModule::team_owner_id(boma)};if owner<=u32::MAX as u64 {Some(hit_owner::Source::OwnedBy(owner as u32))} else {None}}
+        else {None}
+    })?;
+    let owner=sv_battle_object::module_accessor(fighter_id);entry(owner).map(|_|owner)
 }
 unsafe fn sample(boma: *mut BattleObjectModuleAccessor) -> Option<Attack> {
     let slot=entry(boma)?;
