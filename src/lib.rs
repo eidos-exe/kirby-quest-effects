@@ -157,7 +157,7 @@ fn rank_label(rank: Rank) -> &'static str {
     match rank { Rank::Good=>"good", Rank::Great=>"great", Rank::Excellent=>"awesome" }
 }
 unsafe fn reward_prefix(boma: *mut BattleObjectModuleAccessor) -> &'static str {
-    if utility::get_kind(&mut *boma)==*FIGHTER_KIND_KIRBY {"se_kirby_quest"} else {"se_quest"}
+    let kind=utility::get_kind(&mut *boma); if kind==*FIGHTER_KIND_KIRBY {"se_kirby_quest"} else if kind==*FIGHTER_KIND_DEDEDE {"se_dedede_quest"} else {"se_metaknight_quest"}
 }
 unsafe fn request_fighter_effect(b:*mut BattleObjectModuleAccessor, name:&str, pos:&Vector3f, rot:&Vector3f, scale:f32)->u64 {
     EffectModule::req(b,Hash40::new(name),pos,rot,scale,0,-1,false,0)
